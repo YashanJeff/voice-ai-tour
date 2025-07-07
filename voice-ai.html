@@ -551,7 +551,7 @@
             );
         }
 
-        // Navigate to 3DVista panorama by clicking specific hotspots
+        // Navigate to 3DVista panorama by analyzing actual tour structure
         async function navigateToVistaPanorama(pano) {
             try {
                 const iframe = document.querySelector('iframe');
@@ -559,109 +559,138 @@
                     throw new Error('Tour iframe not found');
                 }
 
-                console.log('Attempting navigation to:', pano.name, 'using hotspot:', pano.hotspot_name);
+                console.log('🎯 Attempting navigation to:', pano.name, 'using dynamic hotspot detection');
                 
-                // Method 1: Find and click the specific hotspot by name
+                // Method 1: Analyze the actual tour structure and find hotspots
                 try {
                     if (iframe.contentDocument) {
-                        console.log('Searching for hotspot:', pano.hotspot_name);
+                        console.log('📊 Analyzing tour structure for hotspots...');
                         
-                        // Try to find the hotspot using various selectors
-                        const hotspotSelectors = [
-                            // Direct hotspot name matching
-                            `[onclick*="${pano.hotspot_name}"]`,
-                            `[id="${pano.hotspot_name}"]`,
-                            `[name="${pano.hotspot_name}"]`,
-                            `[data-hotspot="${pano.hotspot_name}"]`,
-                            `[data-target="${pano.hotspot_name}"]`,
-                            `[data-goto="${pano.hotspot_name}"]`,
-                            
-                            // Class name patterns
-                            `.${pano.hotspot_name}`,
-                            `[class*="${pano.hotspot_name}"]`,
-                            
-                            // Title and alt attributes
-                            `[title="${pano.hotspot_name}"]`,
-                            `[alt="${pano.hotspot_name}"]`,
-                            
-                            // Common 3DVista function patterns
-                            `[onclick*="'${pano.hotspot_name}'"]`,
-                            `[onclick*='"${pano.hotspot_name}"']`,
-                            `[onclick*="gotoNode('${pano.hotspot_name}')"]`,
-                            `[onclick*="navigateTo('${pano.hotspot_name}')"]`,
-                            `[onclick*="switchTo('${pano.hotspot_name}')"]`,
-                            
-                            // Generic hotspot searches with the name
-                            `div[onclick*="${pano.hotspot_name}"]`,
-                            `a[onclick*="${pano.hotspot_name}"]`,
-                            `button[onclick*="${pano.hotspot_name}"]`,
-                            `span[onclick*="${pano.hotspot_name}"]`,
-                            `img[onclick*="${pano.hotspot_name}"]`
-                        ];
+                        // Get all elements that might be hotspots
+                        const allElements = iframe.contentDocument.querySelectorAll('*');
+                        const hotspotElements = [];
+                        const roomNumber = pano.media_name.split('-')[0]; // Get "101" from "101-1"
                         
-                        let hotspotFound = false;
+                        console.log('🔍 Looking for hotspots containing:', roomNumber, pano.media_name, pano.hotspot_name);
                         
-                        for (const selector of hotspotSelectors) {
-                            const hotspots = iframe.contentDocument.querySelectorAll(selector);
-                            console.log(`Checking selector "${selector}": found ${hotspots.length} elements`);
+                        // Analyze all elements for hotspot patterns
+                        allElements.forEach((element, index) => {
+                            const onclick = element.getAttribute('onclick') || '';
+                            const id = element.getAttribute('id') || '';
+                            const className = element.className || '';
+                            const title = element.getAttribute('title') || '';
+                            const dataTarget = element.getAttribute('data-target') || '';
+                            const href = element.getAttribute('href') || '';
                             
-                            if (hotspots.length > 0) {
-                                console.log('✅ Found hotspot with selector:', selector);
-                                console.log('✅ Hotspot element:', hotspots[0]);
-                                console.log('✅ Hotspot onclick:', hotspots[0].getAttribute('onclick'));
-                                console.log('✅ Hotspot id:', hotspots[0].getAttribute('id'));
-                                console.log('✅ Hotspot class:', hotspots[0].className);
-                                
-                                // Click the hotspot
-                                console.log('🎯 Clicking hotspot for:', pano.name);
-                                hotspots[0].click();
-                                hotspotFound = true;
-                                console.log('✅ Successfully clicked hotspot:', pano.hotspot_name);
-                                break;
+                            // Check if element might be a hotspot for our room
+                            const isHotspot = 
+                                onclick.includes(roomNumber) ||
+                                onclick.includes(pano.media_name) ||
+                                onclick.includes(pano.hotspot_name) ||
+                                id.includes(roomNumber) ||
+                                id.includes('GoTo') ||
+                                className.includes('hotspot') ||
+                                className.includes('goto') ||
+                                title.includes(roomNumber) ||
+                                dataTarget.includes(roomNumber) ||
+                                href.includes(roomNumber);
+                            
+                            if (isHotspot) {
+                                hotspotElements.push({
+                                    element,
+                                    onclick,
+                                    id,
+                                    className,
+                                    title,
+                                    dataTarget,
+                                    href,
+                                    tagName: element.tagName,
+                                    relevanceScore: 0
+                                });
                             }
-                        }
+                        });
                         
-                        if (!hotspotFound) {
-                            console.log('❌ Hotspot not found with name:', pano.hotspot_name);
-                            console.log('🔍 Searching for all clickable elements containing GoTo...');
+                        console.log('🎯 Found potential hotspots:', hotspotElements.length);
+                        
+                        // Score and sort hotspots by relevance
+                        hotspotElements.forEach(hotspot => {
+                            let score = 0;
                             
-                            // Search for any element containing "GoTo"
-                            const gotoElements = iframe.contentDocument.querySelectorAll('*');
-                            const matchingElements = [];
+                            // Higher score for exact matches
+                            if (hotspot.onclick.includes(pano.hotspot_name)) score += 10;
+                            if (hotspot.id === pano.hotspot_name) score += 10;
+                            if (hotspot.onclick.includes(pano.media_name)) score += 8;
+                            if (hotspot.onclick.includes(roomNumber)) score += 6;
+                            if (hotspot.id.includes('GoTo' + roomNumber)) score += 9;
+                            if (hotspot.className.includes('hotspot')) score += 3;
+                            if (hotspot.onclick.includes('gotoNode')) score += 5;
+                            if (hotspot.onclick.includes('navigateTo')) score += 5;
                             
-                            gotoElements.forEach((element, index) => {
-                                const onclick = element.getAttribute('onclick') || '';
-                                const id = element.getAttribute('id') || '';
-                                const className = element.className || '';
-                                const title = element.getAttribute('title') || '';
-                                
-                                if (onclick.includes('GoTo') || id.includes('GoTo') || className.includes('GoTo') || title.includes('GoTo')) {
-                                    matchingElements.push({
-                                        index,
-                                        element,
-                                        onclick,
-                                        id,
-                                        className,
-                                        title
+                            hotspot.relevanceScore = score;
+                        });
+                        
+                        // Sort by relevance score
+                        hotspotElements.sort((a, b) => b.relevanceScore - a.relevanceScore);
+                        
+                        console.log('📋 Top hotspot candidates:');
+                        hotspotElements.slice(0, 5).forEach((hotspot, index) => {
+                            console.log(`${index + 1}. Score: ${hotspot.relevanceScore}`, {
+                                tagName: hotspot.tagName,
+                                id: hotspot.id,
+                                onclick: hotspot.onclick.substring(0, 100),
+                                className: hotspot.className
+                            });
+                        });
+                        
+                        // Try to click the best matching hotspot
+                        if (hotspotElements.length > 0) {
+                            const bestHotspot = hotspotElements[0];
+                            console.log('🎯 Clicking best hotspot match:', bestHotspot);
+                            console.log('🎯 Element:', bestHotspot.element);
+                            console.log('🎯 onclick:', bestHotspot.onclick);
+                            
+                            // Try multiple click methods
+                            try {
+                                bestHotspot.element.click();
+                                console.log('✅ Successfully clicked hotspot with .click()');
+                            } catch (e) {
+                                console.log('❌ .click() failed, trying dispatchEvent');
+                                const clickEvent = new MouseEvent('click', {
+                                    view: iframe.contentWindow,
+                                    bubbles: true,
+                                    cancelable: true
+                                });
+                                bestHotspot.element.dispatchEvent(clickEvent);
+                                console.log('✅ Successfully clicked hotspot with dispatchEvent');
+                            }
+                            
+                            // Also try to execute the onclick directly if it exists
+                            if (bestHotspot.onclick) {
+                                try {
+                                    console.log('🔧 Executing onclick directly:', bestHotspot.onclick);
+                                    iframe.contentWindow.eval(bestHotspot.onclick);
+                                    console.log('✅ Successfully executed onclick');
+                                } catch (e) {
+                                    console.log('❌ onclick execution failed:', e);
+                                }
+                            }
+                            
+                        } else {
+                            console.log('❌ No hotspots found for room:', roomNumber);
+                            
+                            // Log all elements with onclick for debugging
+                            const allClickable = iframe.contentDocument.querySelectorAll('[onclick], [id*="goto"], [class*="hotspot"]');
+                            console.log('🔍 All clickable/hotspot elements in tour:', allClickable.length);
+                            allClickable.forEach((el, i) => {
+                                if (i < 10) { // Show first 10 for debugging
+                                    console.log(`Element ${i}:`, {
+                                        tag: el.tagName,
+                                        id: el.id,
+                                        class: el.className,
+                                        onclick: el.getAttribute('onclick')?.substring(0, 100)
                                     });
                                 }
                             });
-                            
-                            console.log('🔍 Found GoTo elements:', matchingElements);
-                            
-                            // Try to click the one that matches our hotspot name
-                            const exactMatch = matchingElements.find(item => 
-                                item.onclick.includes(pano.hotspot_name) || 
-                                item.id === pano.hotspot_name ||
-                                item.className.includes(pano.hotspot_name)
-                            );
-                            
-                            if (exactMatch) {
-                                console.log('🎯 Found exact match, clicking:', exactMatch);
-                                exactMatch.element.click();
-                                hotspotFound = true;
-                                console.log('✅ Successfully clicked exact match hotspot');
-                            }
                         }
                         
                     } else {
@@ -671,62 +700,33 @@
                     console.log('❌ Iframe access error:', iframeError);
                 }
                 
-                // Method 2: Try postMessage with specific hotspot name
+                // Method 2: Try postMessage approach
                 try {
-                    console.log('📨 Trying postMessage with hotspot name...');
+                    console.log('📨 Trying postMessage approach...');
                     iframe.contentWindow.postMessage({
-                        type: '3dvista-click-hotspot',
+                        type: 'navigate_to_room',
+                        room: roomNumber,
                         hotspot: pano.hotspot_name,
-                        target: pano.media_name,
-                        action: 'navigate'
+                        media: pano.media_name
                     }, '*');
                 } catch (postError) {
                     console.log('❌ PostMessage failed:', postError);
                 }
                 
-                // Method 3: Try direct JavaScript execution
-                try {
-                    console.log('🔧 Trying JavaScript execution...');
-                    const script = iframe.contentDocument?.createElement('script');
-                    if (script) {
-                        script.textContent = `
-                            try {
-                                // Try to find and click the hotspot
-                                const hotspot = document.querySelector('[onclick*="${pano.hotspot_name}"]') ||
-                                               document.querySelector('#${pano.hotspot_name}') ||
-                                               document.querySelector('.${pano.hotspot_name}');
-                                
-                                if (hotspot) {
-                                    console.log('Found hotspot via script:', hotspot);
-                                    hotspot.click();
-                                } else {
-                                    console.log('No hotspot found via script for: ${pano.hotspot_name}');
-                                }
-                            } catch (e) {
-                                console.log('Script execution error:', e);
-                            }
-                        `;
-                        iframe.contentDocument.head.appendChild(script);
-                        console.log('✅ Script injected successfully');
-                    }
-                } catch (scriptError) {
-                    console.log('❌ Script injection failed:', scriptError);
-                }
-                
                 currentPanorama = pano;
-                showStatus(`Clicking hotspot ${pano.hotspot_name} for ${pano.name}...`, 'info');
+                showStatus(`Attempting navigation to ${pano.name}...`, 'info');
                 
                 // Give it time to navigate
                 setTimeout(() => {
-                    showStatus(`Navigation completed for ${pano.name}`, 'success');
+                    showStatus(`Navigation attempt completed for ${pano.name}`, 'success');
                     console.log('🏁 Navigation attempt completed for:', pano.name);
                 }, 3000);
                 
                 return true;
 
             } catch (error) {
-                console.error('❌ Hotspot navigation error:', error);
-                showStatus(`Hotspot navigation to ${pano.name} failed`, 'error');
+                console.error('❌ Navigation error:', error);
+                showStatus(`Navigation to ${pano.name} failed`, 'error');
                 return false;
             }
         }
@@ -978,7 +978,7 @@
             }, 3000);
         }
 
-        // Text-to-Speech functionality
+        // Text-to-Speech functionality with natural human voice
         function speakText(text) {
             if (!text) return;
             
@@ -995,10 +995,10 @@
                 // Create new speech synthesis utterance
                 const utterance = new SpeechSynthesisUtterance(text);
                 
-                // Configure voice settings
-                utterance.rate = 0.9; // Slightly slower for clarity
-                utterance.pitch = 1.0; // Normal pitch
-                utterance.volume = 0.8; // Slightly quieter
+                // Configure voice settings for natural speech
+                utterance.rate = 0.85; // Slightly slower for natural conversation
+                utterance.pitch = 1.0;  // Normal pitch
+                utterance.volume = 0.9; // Clear volume
                 
                 // Show stop button when speaking
                 utterance.onstart = function() {
@@ -1018,14 +1018,14 @@
                 
                 // Wait for voices to load, then speak
                 if (window.speechSynthesis.getVoices().length > 0) {
-                    setVoiceAndSpeak(utterance);
+                    setNaturalVoiceAndSpeak(utterance);
                 } else {
                     window.speechSynthesis.onvoiceschanged = function() {
-                        setVoiceAndSpeak(utterance);
+                        setNaturalVoiceAndSpeak(utterance);
                     };
                 }
                 
-                console.log('Speaking:', text);
+                console.log('Speaking with natural voice:', text);
                 
             } catch (error) {
                 console.error('Text-to-speech error:', error);
@@ -1034,22 +1034,77 @@
             }
         }
 
-        // Helper function to set voice and speak
-        function setVoiceAndSpeak(utterance) {
+        // Helper function to set natural human voice and speak
+        function setNaturalVoiceAndSpeak(utterance) {
             try {
-                // Try to use a pleasant voice (English)
                 const voices = window.speechSynthesis.getVoices();
-                const preferredVoice = voices.find(voice => 
-                    voice.lang.includes('en') && 
-                    (voice.name.includes('Google') || voice.name.includes('Microsoft') || voice.name.includes('Samantha'))
-                );
+                console.log('Available voices:', voices.map(v => `${v.name} (${v.lang})`));
                 
-                if (preferredVoice) {
-                    utterance.voice = preferredVoice;
+                // Priority order for natural-sounding voices
+                const preferredVoices = [
+                    // High quality female voices
+                    'Google US English Female',
+                    'Microsoft Aria Online (Natural) - English (United States)',
+                    'Microsoft Zira - English (United States)',
+                    'Samantha',
+                    'Alex',
+                    'Karen',
+                    'Moira',
+                    'Tessa',
+                    
+                    // High quality male voices
+                    'Google US English Male',
+                    'Microsoft Guy Online (Natural) - English (United States)',
+                    'Microsoft David - English (United States)',
+                    'Daniel',
+                    'Tom',
+                    
+                    // Fallback natural voices
+                    'Google UK English Female',
+                    'Google UK English Male',
+                    'Microsoft Hazel - English (Great Britain)',
+                    'Microsoft George - English (Great Britain)'
+                ];
+                
+                let selectedVoice = null;
+                
+                // Try to find the best available voice
+                for (const voiceName of preferredVoices) {
+                    selectedVoice = voices.find(voice => 
+                        voice.name.includes(voiceName) || voice.name === voiceName
+                    );
+                    if (selectedVoice) {
+                        console.log('Selected preferred voice:', selectedVoice.name);
+                        break;
+                    }
+                }
+                
+                // If no preferred voice found, look for any good English voice
+                if (!selectedVoice) {
+                    selectedVoice = voices.find(voice => 
+                        voice.lang.includes('en') && 
+                        (voice.name.includes('Google') || 
+                         voice.name.includes('Microsoft') || 
+                         voice.name.includes('Natural') ||
+                         voice.name.includes('Premium'))
+                    );
+                }
+                
+                // Final fallback - any English voice
+                if (!selectedVoice) {
+                    selectedVoice = voices.find(voice => voice.lang.includes('en'));
+                }
+                
+                if (selectedVoice) {
+                    utterance.voice = selectedVoice;
+                    console.log('Using voice:', selectedVoice.name, selectedVoice.lang);
+                } else {
+                    console.log('Using default system voice');
                 }
                 
                 // Speak the text
                 window.speechSynthesis.speak(utterance);
+                
             } catch (error) {
                 console.error('Voice setting error:', error);
                 // Still try to speak without voice preference
