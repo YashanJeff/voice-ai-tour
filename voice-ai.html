@@ -306,7 +306,7 @@
         <div id="nav-status">Ready</div>
 
         <!-- Loading Overlay -->
-        <div id="loading-overlay">
+        <div id="loading-overlay" style="display: none;">
             <div class="loading-spinner"></div>
         </div>
     </div>
@@ -501,7 +501,6 @@
         async function processVoiceCommand(transcript) {
             isProcessing = true;
             updateVoiceButton();
-            showLoading(true);
 
             try {
                 console.log('Processing voice command:', transcript);
@@ -535,7 +534,6 @@
                 showAIResponse("Sorry, I'm having trouble processing your request. Please try again.", 'Error');
                 showStatus('Error processing command', 'error');
             } finally {
-                showLoading(false);
                 resetVoiceButton();
             }
         }
