@@ -548,7 +548,7 @@
             );
         }
 
-        // Navigate to 3DVista panorama using URL parameters
+        // Navigate to 3DVista panorama by simulating hotspot clicks
         async function navigateToVistaPanorama(pano) {
             try {
                 const iframe = document.querySelector('iframe');
@@ -556,32 +556,137 @@
                     throw new Error('Tour iframe not found');
                 }
 
-                console.log('Attempting navigation to:', pano.name, 'with media:', pano.media_name);
+                console.log('Attempting navigation to:', pano.name, 'using hotspot simulation');
                 
-                // Method 1: Use 3DVista URL parameters to navigate by media name
-                const currentUrl = iframe.src;
-                const baseUrl = currentUrl.split('?')[0]; // Get base URL without parameters
-                const newUrl = `${baseUrl}?startmedia=${pano.media_name}`;
+                // Method 1: Try to find and click hotspots in the iframe
+                try {
+                    if (iframe.contentDocument) {
+                        console.log('Searching for hotspots in tour...');
+                        
+                        // Look for common hotspot selectors in 3DVista
+                        const hotspotSelectors = [
+                            `[data-target="${pano.media_name}"]`,
+                            `[data-goto="${pano.media_name}"]`,
+                            `[onclick*="${pano.media_name}"]`,
+                            `[href*="${pano.media_name}"]`,
+                            `.hotspot[title*="${pano.name}"]`,
+                            `.hotspot[alt*="${pano.name}"]`,
+                            `div[onclick*="${pano.media_name}"]`,
+                            `a[onclick*="${pano.media_name}"]`,
+                            // Try with different variations
+                            `[data-target="${pano.media_name.toLowerCase()}"]`,
+                            `[onclick*="101"]`, // For flat 101
+                            `[onclick*="106"]`, // For flat 106  
+                            `[onclick*="105"]`  // For flat 105
+                        ];
+                        
+                        let hotspotFound = false;
+                        
+                        for (const selector of hotspotSelectors) {
+                            const hotspots = iframe.contentDocument.querySelectorAll(selector);
+                            console.log(`Checking selector "${selector}": found ${hotspots.length} elements`);
+                            
+                            if (hotspots.length > 0) {
+                                console.log('Found hotspot(s):', hotspots);
+                                hotspots[0].click();
+                                hotspotFound = true;
+                                console.log('Clicked hotspot for:', pano.name);
+                                break;
+                            }
+                        }
+                        
+                        if (!hotspotFound) {
+                            // Try to find ALL hotspots and log them
+                            const allHotspots = iframe.contentDocument.querySelectorAll('[onclick], .hotspot, [data-target], [data-goto], a[href*="#"]');
+                            console.log('All hotspots found in tour:', allHotspots);
+                            
+                            // Log their attributes to help identify the right one
+                            allHotspots.forEach((hotspot, index) => {
+                                console.log(`Hotspot ${index}:`, {
+                                    onclick: hotspot.getAttribute('onclick'),
+                                    dataTarget: hotspot.getAttribute('data-target'),
+                                    dataGoto: hotspot.getAttribute('data-goto'),
+                                    href: hotspot.getAttribute('href'),
+                                    title: hotspot.getAttribute('title'),
+                                    alt: hotspot.getAttribute('alt'),
+                                    className: hotspot.className,
+                                    text: hotspot.textContent?.trim()
+                                });
+                            });
+                        }
+                        
+                    } else {
+                        console.log('Cannot access iframe content directly (CORS)');
+                    }
+                } catch (iframeError) {
+                    console.log('Iframe access error:', iframeError);
+                }
                 
-                console.log('Current URL:', currentUrl);
-                console.log('New URL:', newUrl);
+                // Method 2: Try postMessage with hotspot simulation
+                try {
+                    console.log('Trying postMessage hotspot simulation...');
+                    iframe.contentWindow.postMessage({
+                        type: '3dvista-click-hotspot',
+                        target: pano.media_name,
+                        room: pano.name
+                    }, '*');
+                } catch (postError) {
+                    console.log('PostMessage hotspot simulation failed:', postError);
+                }
                 
-                // Update iframe source to navigate
-                iframe.src = newUrl;
+                // Method 3: Try JavaScript execution for hotspot clicking
+                try {
+                    console.log('Trying JavaScript hotspot execution...');
+                    const script = iframe.contentDocument?.createElement('script');
+                    if (script) {
+                        script.textContent = `
+                            // Try to find and click hotspot for ${pano.media_name}
+                            const hotspotSelectors = [
+                                '[data-target="${pano.media_name}"]',
+                                '[onclick*="${pano.media_name}"]',
+                                '[onclick*="${pano.media_name.split('-')[0]}"]'
+                            ];
+                            
+                            for (const selector of hotspotSelectors) {
+                                const hotspot = document.querySelector(selector);
+                                if (hotspot) {
+                                    console.log('Found and clicking hotspot:', hotspot);
+                                    hotspot.click();
+                                    break;
+                                }
+                            }
+                            
+                            // Also try 3DVista specific functions
+                            if (typeof gotoNode !== 'undefined') {
+                                try { gotoNode('${pano.vista_node}'); } catch(e) {}
+                            }
+                            if (typeof gotoMedia !== 'undefined') {
+                                try { gotoMedia('${pano.media_name}'); } catch(e) {}
+                            }
+                            if (typeof switchScene !== 'undefined') {
+                                try { switchScene('${pano.media_name}'); } catch(e) {}
+                            }
+                        `;
+                        iframe.contentDocument.head.appendChild(script);
+                    }
+                } catch (scriptError) {
+                    console.log('Script injection failed:', scriptError);
+                }
+                
                 currentPanorama = pano;
-                showStatus(`Navigating to ${pano.name}...`, 'info');
+                showStatus(`Attempting hotspot navigation to ${pano.name}...`, 'info');
                 
-                // Wait for navigation to complete
+                // Give it time to navigate
                 setTimeout(() => {
-                    showStatus(`Navigated to ${pano.name}`, 'success');
-                    console.log('Navigation completed to:', pano.name);
-                }, 2000);
+                    showStatus(`Hotspot navigation attempt completed for ${pano.name}`, 'success');
+                    console.log('Hotspot navigation attempt completed for:', pano.name);
+                }, 3000);
                 
                 return true;
 
             } catch (error) {
-                console.error('Navigation error:', error);
-                showStatus(`Navigation to ${pano.name} failed`, 'error');
+                console.error('Hotspot navigation error:', error);
+                showStatus(`Hotspot navigation to ${pano.name} failed`, 'error');
                 return false;
             }
         }
@@ -592,6 +697,8 @@
                 // Use predefined description instead of AI analysis
                 const description = pano.description || `Welcome to ${pano.name}! You're now viewing this location in 360 degrees.`;
                 const spokenText = pano.spoken_description || `You are now in ${pano.name}.`;
+                
+                console.log('Showing description for:', pano.name);
                 
                 // Show text description
                 showAIResponse(description, pano.name);
@@ -951,6 +1058,28 @@
             console.warn('API functionality disabled for testing - focusing on navigation only');
             showStatus('Navigation testing mode - API features disabled', 'info');
             
+            // Add debugging for 3DVista tour
+            setTimeout(() => {
+                console.log('=== 3DVista Tour Debug Info ===');
+                const iframe = document.querySelector('iframe');
+                if (iframe) {
+                    console.log('Iframe found:', iframe.src);
+                    
+                    // Try to access iframe content (may fail due to CORS)
+                    try {
+                        if (iframe.contentWindow) {
+                            console.log('Iframe content window accessible');
+                            console.log('Available functions in iframe:', Object.keys(iframe.contentWindow));
+                        }
+                    } catch (e) {
+                        console.log('Cannot access iframe content (CORS protected)');
+                    }
+                } else {
+                    console.log('No iframe found!');
+                }
+                console.log('=== End Debug Info ===');
+            }, 3000);
+            
             // Add click event listener to voice button
             document.getElementById('voice-btn').addEventListener('click', function() {
                 console.log('Voice button clicked');
@@ -962,7 +1091,11 @@
             
             // Play welcome message after everything is loaded
             setTimeout(() => {
-                playWelcomeMessage();
+                const welcomeText = "Welcome to our virtual tour! I'm your AI guide. You can ask me to take you to different apartments like flat 101, 106, or 105. Click the microphone and speak your command.";
+                showAIResponse(welcomeText, 'AI Tour Guide');
+                setTimeout(() => {
+                    speakText(welcomeText);
+                }, 1000);
             }, 2000);
         });
 
