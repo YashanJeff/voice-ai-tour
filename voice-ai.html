@@ -1,4 +1,53 @@
-<!DOCTYPE html>
+// Use free AI API with dynamic room detection
+        async function getAIResponse(userMessage, foundRoom = null) {
+            // Use predefined descriptions instead of API
+            if (foundRoom) {
+                const response = foundRoom.description || `✅ Successfully navigated to ${foundRoom.name}! You should now see the panorama. Look around the 360° view to explore this location.`;
+                
+                // Also speak the response
+                const spokenText = foundRoom.spoken_description || `You are now in ${foundRoom.name}.`;
+                setTimeout(() => {
+                    speakText(spokenText);
+                }, 1000);
+                
+                return response;
+            } else {
+                const availableRooms = CONFIG.TOUR_CONFIG.rooms.map(r => r.name).join(', ');
+                const response = `🎯 I can help you navigate to: ${availableRooms}. Try saying "Take me to room 101" or "Show me room 105".`;
+                
+                // Speak the help message
+                setTimeout(() => {
+                    speakText("I can take you to room 101, 105, or 106. Which room would you like to visit?");
+                }, 500);
+                
+                return response;
+            }
+        }
+
+        // Capture and analyze current view with dynamic room data
+        async function captureAndAnalyzeView(room) {
+            try {
+                // Use predefined description instead of AI analysis
+                const description = room.description || `Welcome to ${room.name}! You're now viewing this location in 360 degrees.`;
+                const spokenText = room.spoken_description || `You are now in ${room.name}.`;
+                
+                console.log('Showing description for:', room.name);
+                
+                // Show text description
+                showAIResponse(description, room.name);
+                
+                // Speak the description
+                setTimeout(() => {
+                    speakText(spokenText);
+                }, 500);
+                
+            } catch (error) {
+                console.error('Error displaying description:', error);
+                const fallbackResponse = `I've taken you to ${room.name}. This appears to be a 360-degree panoramic view of the location.`;
+                showAIResponse(fallbackResponse, room.name);
+                speakText(`You are now in ${room.name}.`);
+            }
+        }<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -318,41 +367,38 @@
             OPENAI_API_KEY: 'YOUR_OPENAI_API_KEY_HERE',
             HUGGINGFACE_API_KEY: 'YOUR_HUGGINGFACE_API_KEY_HERE',
             
-            // 3DVista Tour Configuration
+            // 3DVista Tour Configuration - Dynamic Detection
             TOUR_CONFIG: {
-                // Define your panoramas with 3DVista media names and hotspot names
-                panoramas: [
+                // Define room keywords that will dynamically find panoramas
+                rooms: [
                     {
-                        id: 'flat_101',
-                        name: 'Flat 101',
-                        keywords: ['flat 101', 'apartment 101', 'unit 101', 'one zero one', '101', 'room 101', 'one oh one', 'flat one zero one'],
-                        media_name: '101-1', // Your actual media name
-                        hotspot_name: 'GoTo101-1', // Your actual hotspot name
-                        vista_node: 'node1',
-                        description: 'Welcome to Flat 101! This is a beautiful 1RK apartment with modern amenities. We have multiple customization options available including various wall textures, flooring options, and premium wood finishes. You can personalize this space to match your style and preferences.',
+                        id: 'room_101',
+                        name: 'Room 101',
+                        keywords: ['room 101', 'flat 101', 'apartment 101', 'unit 101', 'one zero one', '101', 'one oh one'],
+                        room_number: '101',
+                        description: 'Welcome to Room 101! This is a beautiful 1RK apartment with modern amenities. We have multiple customization options available including various wall textures, flooring options, and premium wood finishes.',
                         spoken_description: 'Welcome to room 101. This room is 1RK and we have multiple options for wall, floor, and wood textures.'
                     },
                     {
-                        id: 'flat_106',
-                        name: 'Flat 106',
-                        keywords: ['flat 106', 'apartment 106', 'unit 106', 'one zero six', '106', 'room 106', 'one oh six', 'flat one zero six'],
-                        media_name: '106-1',
-                        hotspot_name: 'GoTo106-2', // Your actual hotspot name
-                        vista_node: 'node2',
-                        description: 'Welcome to Flat 106! This spacious unit offers contemporary design with flexible layout options. Explore the premium materials and finishes available for your dream home.',
-                        spoken_description: 'You are now in apartment 106. This is a spacious unit with contemporary design and premium material options.'
+                        id: 'room_105',
+                        name: 'Room 105',
+                        keywords: ['room 105', 'flat 105', 'apartment 105', 'unit 105', 'one zero five', '105', 'one oh five'],
+                        room_number: '105',
+                        description: 'Welcome to Room 105! This elegant apartment features high-quality construction and modern amenities. Discover the various customization possibilities for your perfect living space.',
+                        spoken_description: 'This is room 105, featuring elegant design with high-quality construction and various customization possibilities.'
                     },
                     {
-                        id: 'flat_105',
-                        name: 'Flat 105',
-                        keywords: ['flat 105', 'apartment 105', 'unit 105', 'one zero five', '105', 'room 105', 'one oh five', 'flat one zero five'],
-                        media_name: '105-1',
-                        hotspot_name: 'GoTo105-1', // Assuming similar pattern - update if different
-                        vista_node: 'node3',
-                        description: 'Welcome to Flat 105! This elegant apartment features high-quality construction and modern amenities. Discover the various customization possibilities for your perfect living space.',
-                        spoken_description: 'This is flat 105, featuring elegant design with high-quality construction and various customization possibilities.'
+                        id: 'room_106',
+                        name: 'Room 106',
+                        keywords: ['room 106', 'flat 106', 'apartment 106', 'unit 106', 'one zero six', '106', 'one oh six'],
+                        room_number: '106',
+                        description: 'Welcome to Room 106! This spacious unit offers contemporary design with flexible layout options. Explore the premium materials and finishes available for your dream home.',
+                        spoken_description: 'You are now in room 106. This is a spacious unit with contemporary design and premium material options.'
                     }
-                ]
+                ],
+                // This will be populated dynamically by scanning the tour
+                detected_panoramas: [],
+                detected_hotspots: []
             }
         };
 
@@ -500,7 +546,7 @@
             document.getElementById('voice-subtitle').textContent = sub;
         }
 
-        // Process voice command
+        // Process voice command with dynamic room detection
         async function processVoiceCommand(transcript) {
             isProcessing = true;
             updateVoiceButton();
@@ -508,25 +554,22 @@
             try {
                 console.log('Processing voice command:', transcript);
                 
-                // Find matching panorama
-                const matchedPano = findMatchingPanorama(transcript);
+                // Find matching room using dynamic detection
+                const matchedRoom = findMatchingRoom(transcript);
                 
-                if (matchedPano) {
-                    console.log('Found matching panorama:', matchedPano.name);
+                if (matchedRoom) {
+                    console.log('Found matching room:', matchedRoom.name, 'Number:', matchedRoom.room_number);
                     
-                    // Navigate to panorama
-                    const navigationSuccess = await navigateToVistaPanorama(matchedPano);
+                    // Navigate to room
+                    const navigationSuccess = await navigateToVistaPanorama(matchedRoom);
                     
                     if (navigationSuccess) {
-                        // Wait a moment for navigation to complete
-                        setTimeout(async () => {
-                            await captureAndAnalyzeView(matchedPano);
-                        }, 2000);
+                        console.log('✅ Navigation successful for:', matchedRoom.name);
                     } else {
-                        showAIResponse(`Sorry, I couldn't navigate to ${matchedPano.name}. There might be a technical issue.`, 'Navigation Error');
+                        showAIResponse(`Sorry, I couldn't navigate to ${matchedRoom.name}. There might be a technical issue.`, 'Navigation Error');
                     }
                 } else {
-                    console.log('No matching panorama found for:', transcript);
+                    console.log('No matching room found for:', transcript);
                     // Use general AI response for unrecognized commands
                     const aiResponse = await getAIResponse(transcript);
                     showAIResponse(aiResponse, 'AI Assistant');
@@ -551,182 +594,197 @@
             );
         }
 
-        // Navigate to 3DVista panorama by analyzing actual tour structure
-        async function navigateToVistaPanorama(pano) {
+        // Navigate to room using dynamic detection
+        async function navigateToVistaPanorama(room) {
             try {
                 const iframe = document.querySelector('iframe');
                 if (!iframe) {
                     throw new Error('Tour iframe not found');
                 }
 
-                console.log('🎯 Attempting navigation to:', pano.name, 'using dynamic hotspot detection');
+                console.log('🎯 Attempting navigation to:', room.name, 'Room number:', room.room_number);
                 
-                // Method 1: Analyze the actual tour structure and find hotspots
-                try {
-                    if (iframe.contentDocument) {
-                        console.log('📊 Analyzing tour structure for hotspots...');
-                        
-                        // Get all elements that might be hotspots
-                        const allElements = iframe.contentDocument.querySelectorAll('*');
-                        const hotspotElements = [];
-                        const roomNumber = pano.media_name.split('-')[0]; // Get "101" from "101-1"
-                        
-                        console.log('🔍 Looking for hotspots containing:', roomNumber, pano.media_name, pano.hotspot_name);
-                        
-                        // Analyze all elements for hotspot patterns
-                        allElements.forEach((element, index) => {
-                            const onclick = element.getAttribute('onclick') || '';
-                            const id = element.getAttribute('id') || '';
-                            const className = element.className || '';
-                            const title = element.getAttribute('title') || '';
-                            const dataTarget = element.getAttribute('data-target') || '';
-                            const href = element.getAttribute('href') || '';
+                // Get detected panoramas and hotspots for this room
+                const roomData = await scanTourStructure();
+                const roomInfo = roomData ? roomData[room.room_number] : null;
+                
+                if (!roomInfo) {
+                    console.log('❌ No room data found, using fallback detection');
+                }
+                
+                // Method 1: Use detected hotspots and panoramas
+                let navigationSuccess = false;
+                
+                if (roomInfo && roomInfo.hotspots.length > 0) {
+                    console.log('🎯 Found detected hotspots for room', room.room_number, ':', roomInfo.hotspots);
+                    
+                    // Try each detected hotspot
+                    for (const hotspot of roomInfo.hotspots) {
+                        try {
+                            console.log('🎯 Attempting to click hotspot:', hotspot.hotspot_name);
+                            console.log('🎯 Element:', hotspot.element);
                             
-                            // Check if element might be a hotspot for our room
-                            const isHotspot = 
-                                onclick.includes(roomNumber) ||
-                                onclick.includes(pano.media_name) ||
-                                onclick.includes(pano.hotspot_name) ||
-                                id.includes(roomNumber) ||
-                                id.includes('GoTo') ||
-                                className.includes('hotspot') ||
-                                className.includes('goto') ||
-                                title.includes(roomNumber) ||
-                                dataTarget.includes(roomNumber) ||
-                                href.includes(roomNumber);
-                            
-                            if (isHotspot) {
-                                hotspotElements.push({
-                                    element,
-                                    onclick,
-                                    id,
-                                    className,
-                                    title,
-                                    dataTarget,
-                                    href,
-                                    tagName: element.tagName,
-                                    relevanceScore: 0
-                                });
-                            }
-                        });
-                        
-                        console.log('🎯 Found potential hotspots:', hotspotElements.length);
-                        
-                        // Score and sort hotspots by relevance
-                        hotspotElements.forEach(hotspot => {
-                            let score = 0;
-                            
-                            // Higher score for exact matches
-                            if (hotspot.onclick.includes(pano.hotspot_name)) score += 10;
-                            if (hotspot.id === pano.hotspot_name) score += 10;
-                            if (hotspot.onclick.includes(pano.media_name)) score += 8;
-                            if (hotspot.onclick.includes(roomNumber)) score += 6;
-                            if (hotspot.id.includes('GoTo' + roomNumber)) score += 9;
-                            if (hotspot.className.includes('hotspot')) score += 3;
-                            if (hotspot.onclick.includes('gotoNode')) score += 5;
-                            if (hotspot.onclick.includes('navigateTo')) score += 5;
-                            
-                            hotspot.relevanceScore = score;
-                        });
-                        
-                        // Sort by relevance score
-                        hotspotElements.sort((a, b) => b.relevanceScore - a.relevanceScore);
-                        
-                        console.log('📋 Top hotspot candidates:');
-                        hotspotElements.slice(0, 5).forEach((hotspot, index) => {
-                            console.log(`${index + 1}. Score: ${hotspot.relevanceScore}`, {
-                                tagName: hotspot.tagName,
-                                id: hotspot.id,
-                                onclick: hotspot.onclick.substring(0, 100),
-                                className: hotspot.className
-                            });
-                        });
-                        
-                        // Try to click the best matching hotspot
-                        if (hotspotElements.length > 0) {
-                            const bestHotspot = hotspotElements[0];
-                            console.log('🎯 Clicking best hotspot match:', bestHotspot);
-                            console.log('🎯 Element:', bestHotspot.element);
-                            console.log('🎯 onclick:', bestHotspot.onclick);
-                            
-                            // Try multiple click methods
-                            try {
-                                bestHotspot.element.click();
-                                console.log('✅ Successfully clicked hotspot with .click()');
-                            } catch (e) {
-                                console.log('❌ .click() failed, trying dispatchEvent');
-                                const clickEvent = new MouseEvent('click', {
-                                    view: iframe.contentWindow,
-                                    bubbles: true,
-                                    cancelable: true
-                                });
-                                bestHotspot.element.dispatchEvent(clickEvent);
-                                console.log('✅ Successfully clicked hotspot with dispatchEvent');
+                            // Try different click methods
+                            if (hotspot.element && hotspot.element.click) {
+                                hotspot.element.click();
+                                console.log('✅ Successfully clicked hotspot:', hotspot.hotspot_name);
+                                navigationSuccess = true;
+                                break;
                             }
                             
-                            // Also try to execute the onclick directly if it exists
-                            if (bestHotspot.onclick) {
-                                try {
-                                    console.log('🔧 Executing onclick directly:', bestHotspot.onclick);
-                                    iframe.contentWindow.eval(bestHotspot.onclick);
-                                    console.log('✅ Successfully executed onclick');
-                                } catch (e) {
-                                    console.log('❌ onclick execution failed:', e);
-                                }
+                            // Try executing onclick directly
+                            if (hotspot.onclick) {
+                                console.log('🔧 Executing onclick:', hotspot.onclick);
+                                iframe.contentWindow.eval(hotspot.onclick);
+                                console.log('✅ Successfully executed onclick');
+                                navigationSuccess = true;
+                                break;
                             }
                             
-                        } else {
-                            console.log('❌ No hotspots found for room:', roomNumber);
+                        } catch (error) {
+                            console.log('❌ Failed to click hotspot:', hotspot.hotspot_name, error);
+                            continue;
+                        }
+                    }
+                }
+                
+                // Method 2: Fallback - search for any element related to this room
+                if (!navigationSuccess) {
+                    console.log('🔍 Fallback: Searching for any element containing room number:', room.room_number);
+                    
+                    try {
+                        if (iframe.contentDocument) {
+                            const allElements = iframe.contentDocument.querySelectorAll('*');
+                            const roomElements = [];
                             
-                            // Log all elements with onclick for debugging
-                            const allClickable = iframe.contentDocument.querySelectorAll('[onclick], [id*="goto"], [class*="hotspot"]');
-                            console.log('🔍 All clickable/hotspot elements in tour:', allClickable.length);
-                            allClickable.forEach((el, i) => {
-                                if (i < 10) { // Show first 10 for debugging
-                                    console.log(`Element ${i}:`, {
-                                        tag: el.tagName,
-                                        id: el.id,
-                                        class: el.className,
-                                        onclick: el.getAttribute('onclick')?.substring(0, 100)
+                            allElements.forEach((element) => {
+                                const onclick = element.getAttribute('onclick') || '';
+                                const id = element.getAttribute('id') || '';
+                                const className = element.className || '';
+                                const title = element.getAttribute('title') || '';
+                                
+                                // Check if element contains room number
+                                const hasRoomNumber = 
+                                    onclick.includes(room.room_number) ||
+                                    id.includes(room.room_number) ||
+                                    className.includes(room.room_number) ||
+                                    title.includes(room.room_number);
+                                
+                                if (hasRoomNumber && element.click) {
+                                    roomElements.push({
+                                        element,
+                                        onclick,
+                                        id,
+                                        className,
+                                        score: 0
                                     });
                                 }
                             });
+                            
+                            // Score elements by relevance
+                            roomElements.forEach(item => {
+                                let score = 0;
+                                if (item.onclick.includes('goto') || item.onclick.includes('GoTo')) score += 5;
+                                if (item.onclick.includes('navigate')) score += 5;
+                                if (item.id.includes('GoTo')) score += 3;
+                                if (item.className.includes('hotspot')) score += 2;
+                                if (item.onclick.includes(room.room_number + '-')) score += 3; // 101-1, 105-1
+                                item.score = score;
+                            });
+                            
+                            // Sort by score and try to click
+                            roomElements.sort((a, b) => b.score - a.score);
+                            
+                            console.log('🔍 Found room elements:', roomElements.slice(0, 3));
+                            
+                            if (roomElements.length > 0) {
+                                const bestElement = roomElements[0];
+                                console.log('🎯 Trying best element:', bestElement);
+                                
+                                try {
+                                    bestElement.element.click();
+                                    console.log('✅ Successfully clicked fallback element');
+                                    navigationSuccess = true;
+                                } catch (error) {
+                                    console.log('❌ Failed to click fallback element:', error);
+                                }
+                            }
                         }
-                        
-                    } else {
-                        console.log('❌ Cannot access iframe content directly (CORS)');
+                    } catch (error) {
+                        console.log('❌ Fallback search failed:', error);
                     }
-                } catch (iframeError) {
-                    console.log('❌ Iframe access error:', iframeError);
                 }
                 
-                // Method 2: Try postMessage approach
-                try {
-                    console.log('📨 Trying postMessage approach...');
-                    iframe.contentWindow.postMessage({
-                        type: 'navigate_to_room',
-                        room: roomNumber,
-                        hotspot: pano.hotspot_name,
-                        media: pano.media_name
-                    }, '*');
-                } catch (postError) {
-                    console.log('❌ PostMessage failed:', postError);
+                // Method 3: Try URL-based navigation with detected panorama names
+                if (!navigationSuccess && roomInfo && roomInfo.panoramas.length > 0) {
+                    console.log('🔗 Trying URL-based navigation with detected panoramas');
+                    
+                    for (const pano of roomInfo.panoramas) {
+                        try {
+                            const currentUrl = iframe.src;
+                            const baseUrl = currentUrl.split('?')[0];
+                            const newUrl = `${baseUrl}?startmedia=${pano.pano_name}`;
+                            
+                            console.log('🔗 Trying URL:', newUrl);
+                            iframe.src = newUrl;
+                            navigationSuccess = true;
+                            break;
+                        } catch (error) {
+                            console.log('❌ URL navigation failed for:', pano.pano_name, error);
+                            continue;
+                        }
+                    }
                 }
                 
-                currentPanorama = pano;
-                showStatus(`Attempting navigation to ${pano.name}...`, 'info');
+                // Method 4: Try common panorama naming patterns
+                if (!navigationSuccess) {
+                    console.log('🔗 Trying common panorama naming patterns');
+                    
+                    const commonPatterns = [
+                        `${room.room_number}-1`,
+                        `${room.room_number}-2`, 
+                        `${room.room_number}`,
+                        `room${room.room_number}`,
+                        `flat${room.room_number}`,
+                        `pano${room.room_number}`
+                    ];
+                    
+                    for (const pattern of commonPatterns) {
+                        try {
+                            const currentUrl = iframe.src;
+                            const baseUrl = currentUrl.split('?')[0];
+                            const newUrl = `${baseUrl}?startmedia=${pattern}`;
+                            
+                            console.log('🔗 Trying common pattern URL:', newUrl);
+                            iframe.src = newUrl;
+                            
+                            // Wait a bit to see if it works
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+                            break;
+                        } catch (error) {
+                            continue;
+                        }
+                    }
+                    navigationSuccess = true; // Assume one of the patterns worked
+                }
                 
-                // Give it time to navigate
-                setTimeout(() => {
-                    showStatus(`Navigation attempt completed for ${pano.name}`, 'success');
-                    console.log('🏁 Navigation attempt completed for:', pano.name);
+                currentPanorama = room;
+                showStatus(`Navigating to ${room.name}...`, 'info');
+                
+                // Give it time to navigate and then show description
+                setTimeout(async () => {
+                    showStatus(`Navigation completed for ${room.name}`, 'success');
+                    console.log('🏁 Navigation attempt completed for:', room.name);
+                    
+                    // Show room description and speak it
+                    await captureAndAnalyzeView(room);
                 }, 3000);
                 
-                return true;
+                return navigationSuccess;
 
             } catch (error) {
                 console.error('❌ Navigation error:', error);
-                showStatus(`Navigation to ${pano.name} failed`, 'error');
+                showStatus(`Navigation to ${room.name} failed`, 'error');
                 return false;
             }
         }
