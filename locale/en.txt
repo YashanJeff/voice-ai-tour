@@ -1,0 +1,108 @@
+#: locale=en
+
+## Action
+
+### URL
+LinkBehaviour_37089D3E_2744_DA2E_41B2_93E28C3C64F4.source = https://view360degrees.com
+
+## Media
+
+### Floorplan
+
+### Image
+imlevel_F6639167_E52A_736C_41D6_D8D93027BE6A.url = media/map_16F70537_228B_FA52_41B6_0320116F18EF_en_0.webp
+imlevel_F663A167_E52A_736C_41E5_0EB093286D05.url = media/map_16F70537_228B_FA52_41B6_0320116F18EF_en_1.webp
+imlevel_F663C167_E52A_736C_41EB_AEDD017615F1.url = media/map_16F70537_228B_FA52_41B6_0320116F18EF_en_2.webp
+imlevel_F663F167_E52A_736C_41EA_62E0CBAECFE4.url = media/map_16F70537_228B_FA52_41B6_0320116F18EF_en_3.webp
+
+### Title
+panorama_3AB2E414_1FF7_9B5A_41B9_5E5F655A3335.label = 101-1
+panorama_3ED05D27_1FF7_8545_4199_5E5B2EBD6D95.label = 101-2
+panorama_3ED5F654_1FF0_87DB_41A4_F623B4EC6A43.label = 101-3
+panorama_3ED61F74_1FF0_85DA_41AD_447E8A5F39F6.label = 101-4
+panorama_3ED4A8C1_1FF0_8B3D_418E_A2DC33CA2EEF.label = 101-5
+panorama_3BC53A5A_1FF1_8FCF_41BE_161FD0515BAA.label = 102-1
+panorama_3E18D3AC_1FF0_7D4B_4196_60BBC6E98A00.label = 102-2
+panorama_3E188CDB_1FF0_84CD_41B5_D53D867859E8.label = 102-3
+panorama_3E1B964D_1FF0_87C5_41A9_8593D0A18FEC.label = 102-4
+panorama_13FDAFBB_1FFF_4A9E_41AD_02106AEAD791.label = 103-1
+panorama_1449272F_1FFF_5BB6_41B5_888F86107ACB.label = 103-2
+panorama_1448AEBB_1FFF_4A9E_41AE_8E43BCB04D12.label = 103-3
+panorama_14490632_1FFF_BDAE_41AF_DE3474A4A6E4.label = 103-4
+panorama_3E19D010_1FF0_BB5B_41BD_E209C3DD668F.label = 104-1
+panorama_3E19C93E_1FF0_8D47_41B3_3E3C0471773F.label = 104-2
+panorama_3E18228D_1FF0_9F45_41A5_D1A167117754.label = 104-3
+panorama_3E19DBDD_1FF0_8CCA_41A3_36BB36EBB60A.label = 104-4
+panorama_0ECE9F64_24E6_DABF_41B2_28FD3FBF9A78.label = 105-1
+panorama_0E9601CD_24E7_4989_41BE_26302FBFC2B6.label = 105-2
+panorama_3E1807A9_1FF0_854D_41B2_9B22ADD33244.label = 105-3
+panorama_143B3C88_2521_5E77_41AC_FBE9F30B6B21.label = 105-4
+panorama_3E180A48_1FF0_8FCB_41A4_1ECCD77A16C0.label = 106-1
+panorama_3E184377_1FF0_9DC6_4181_C887085EA58A.label = 106-2
+panorama_3E18DCB5_1FF0_8B45_41B7_28A4CB533DBA.label = 106-3
+panorama_3E18B5F4_1FF3_84DB_41B5_0F4E7085E889.label = 106-4
+panorama_10D60660_2527_CAB7_41BB_B6E5065034A4.label = 106-5
+panorama_3ED53202_1FF0_BF3F_41BC_C5DA0F8F5A5E.label = 112-1
+panorama_3ED5895C_1FF0_8DCB_41AE_3434B71F6588.label = 112-2
+panorama_3ED510D9_1FF0_9CCD_41B8_02A110369EDE.label = 112-3
+panorama_3ED678DA_1FF0_8CCF_4193_1203EBD6629D.label = 112-4
+panorama_3ED520CC_1FF0_FCCB_41B5_8DD7CD811D08.label = 112-5
+panorama_1029D35C_1FB0_9DCB_41A4_E6BD92E7B4AA.label = 8
+map_16F70537_228B_FA52_41B6_0320116F18EF.label = Mango tree apartments
+
+## Skin
+
+### Button
+Button_69F11C7A_76A2_9D43_41CC_DBBE6B3E40BE.label = Contact
+Button_6BFAA737_78E1_3725_41B4_1B17E6CDFC0A.label = Contact
+Button_08BA755C_7921_EB6B_41D1_51EDD2297CCB.label = Contact
+Button_6BFB7736_78E1_3727_41C3_C7E32F54B042.label = Credits
+Button_699DD4E8_76AE_8D4F_41CC_3A15C8BD3759.label = Credits
+Button_60B4CA19_2005_559A_41B7_10C87A2A1B7C.label = Floor Plan
+Button_6B663384_76BE_8BC7_41AB_86999240E47D.label = Floor Textures
+Button_46FC31DB_7B4B_2BBF_41B5_E6949906F10D.label = Fullscreen
+Button_6B7E15AD_76A2_8FC1_4199_46AC3B28B7E6.label = Guided Tour
+Button_46785396_7961_2FE4_41C6_60B06B51B30F.label = Guided Tour
+Button_6B24BCD7_76A1_9D41_41D9_E043DA53C841.label = Location
+Button_69DCCB86_78E0_DFE7_41D3_3849A0FD3F7C.label = Location
+Button_6BFB1736_78E1_3727_41C6_F84223623849.label = Materials
+Button_46F8B1DA_7B4B_2BB9_41C4_11A208DF8DCF.label = Mute Sound
+Button_370A9D3D_2744_DA32_41A7_0B8C9BA51903.label = Powered By
+Button_3D75DD17_7967_58E4_41DB_EDAFC765F7A4.label = Pricing
+Button_08BB555C_7921_EB6B_41C9_7560B5C9C74C.label = Settings
+Button_560BE3DF_76A3_8B41_41DA_259956509C7A.label = Share
+Button_6AC98E52_76A1_9D43_41A0_7FE15DBB37EF.label = Wall Textures
+Button_698BF58E_76BF_8FC3_41DA_287716F01E92.label = Wood Textures
+
+### Image
+Image_00E66447_116D_C47A_41A6_8F15B2955FBA.url = skin/Image_00E66447_116D_C47A_41A6_8F15B2955FBA_en.png
+Image_025ED60C_1FD7_874B_41AF_BB700537BD76.url = skin/Image_025ED60C_1FD7_874B_41AF_BB700537BD76_en.png
+Image_025FB60C_1FD7_874B_41B7_7F47BB0BD23F.url = skin/Image_025FB60C_1FD7_874B_41B7_7F47BB0BD23F_en.png
+Image_03047362_116D_5C3A_41A3_96A8FB0B1A24.url = skin/Image_03047362_116D_5C3A_41A3_96A8FB0B1A24_en.png
+Image_033C01CF_1FD0_BCC5_41A6_43F8A28E104F.url = skin/Image_033C01CF_1FD0_BCC5_41A6_43F8A28E104F_en.png
+Image_033D51CF_1FD0_BCC5_41AA_03DB34127DD5.url = skin/Image_033D51CF_1FD0_BCC5_41AA_03DB34127DD5_en.png
+Image_03C2F8AC_116D_CC0E_41A2_D4EB519B4A41.url = skin/Image_03C2F8AC_116D_CC0E_41A2_D4EB519B4A41_en.png
+Image_370B2D3E_2744_DA2E_41B0_C992ABF8FA8A.url = skin/Image_370B2D3E_2744_DA2E_41B0_C992ABF8FA8A_en.png
+
+### Label
+Label_46FA51D3_7B4B_2B8F_41D8_94C6064FF53C.text = Settings
+
+### Multiline Text
+HTMLText_46743BF0_7B7B_1F88_4180_7CA4F2F3D815.html = <div style="text-align:left; color:#000; "><DIV STYLE="text-align:left;font-size:0.6257822277847311vw;"><SPAN STYLE="display:inline-block; letter-spacing:0vw; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#999999;font-size:0.63vw;font-family:Arabic Transparent;">UG-06, MGF Metropolis Mall, MG Road Metropolis Mall, Mehrauli-Gurgaon Rd, Gurugram, Haryana 122002</SPAN></SPAN></DIV><p STYLE="margin:0; line-height:0.63vw;"><BR STYLE="display:inline-block; letter-spacing:0vw; white-space:pre-wrap;color:#000000;font-size:0.75vw;font-family:Arial, Helvetica, sans-serif;"/></p><DIV STYLE="text-align:left;font-size:0.6257822277847311vw;"><SPAN STYLE="display:inline-block; letter-spacing:0vw; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#999999;font-size:0.63vw;font-family:Arabic Transparent;">+91 98036 00360</SPAN></SPAN></DIV><p STYLE="margin:0; line-height:0.63vw;"><BR STYLE="display:inline-block; letter-spacing:0vw; white-space:pre-wrap;color:#000000;font-size:0.75vw;font-family:Arial, Helvetica, sans-serif;"/></p><DIV STYLE="text-align:left;font-size:0.6257822277847311vw;"><SPAN STYLE="display:inline-block; letter-spacing:0vw; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#999999;font-size:0.63vw;font-family:Arabic Transparent;">hello@view360degrees.com</SPAN></SPAN></DIV></div>
+HTMLText_3D6178E8_7C2B_39FB_41CA_8FEB7A2AFE65.html = <div style="text-align:left; color:#000; "><DIV STYLE="text-align:left;font-size:13px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#666666;font-size:13px;font-family:Arabic Transparent;"><B>About the Project</B></SPAN></SPAN></DIV><DIV STYLE="text-align:left;font-size:32px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:32px;font-family:Arabic Transparent;">Location</SPAN></SPAN></DIV><p STYLE="margin:0; line-height:32px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:12px;font-family:Arial, Helvetica, sans-serif;"/></p><DIV STYLE="text-align:left;font-size:12px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#cccccc;font-size:12px;font-family:Arabic Transparent;">This Apartment is located near </SPAN></SPAN></DIV><p STYLE="margin:0; line-height:14px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:12px;font-family:Arial, Helvetica, sans-serif;"/></p></div>
+HTMLText_4660B2AC_7B4F_6998_41D0_C4A968FBD124.html = <div style="text-align:left; color:#000; "><DIV STYLE="text-align:left;font-size:13px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#666666;font-size:13px;font-family:Arabic Transparent;"><B>Get in Touch</B></SPAN></SPAN></DIV><DIV STYLE="text-align:left;font-size:32px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:32px;font-family:Arabic Transparent;">Contact</SPAN></SPAN></DIV><p STYLE="margin:0; line-height:32px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:12px;font-family:Arial, Helvetica, sans-serif;"/></p><DIV STYLE="text-align:left;font-size:14px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#cccccc;font-size:12px;font-family:Arabic Transparent;">Reach out to us for further information and assistance regarding our apartment</SPAN><SPAN STYLE="color:#cccccc;font-size:14px;font-family:Arabic Transparent;">.</SPAN></SPAN></DIV><p STYLE="margin:0; line-height:14px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:12px;font-family:Arial, Helvetica, sans-serif;"/></p></div>
+HTMLText_3AE43A73_7B7F_1888_41DB_90BAE4486E2F.html = <div style="text-align:left; color:#000; "><DIV STYLE="text-align:left;font-size:25px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:25px;"><B>View360Degrees</B></SPAN></SPAN></DIV></div>
+HTMLText_6D07C6B1_7DF3_D031_41C2_8CDA5FF4A59E.html = <div style="text-align:left; color:#000; "><DIV STYLE="text-align:left;font-size:27px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:27px;"><B>Apartments</B></SPAN></SPAN></DIV><p STYLE="margin:0; line-height:17px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:12px;font-family:Arial, Helvetica, sans-serif;"/></p><p STYLE="margin:0; line-height:17px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:12px;font-family:Arial, Helvetica, sans-serif;"/></p><DIV STYLE="text-align:left;font-size:14px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:14px;">Floor           Typology</SPAN></SPAN></DIV><p STYLE="margin:0; line-height:14px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:12px;font-family:Arial, Helvetica, sans-serif;"/></p><DIV STYLE="text-align:left;font-size:14px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:14px;">0-1              Duplex: 3BR, 3BA</SPAN></SPAN></DIV><p STYLE="margin:0; line-height:14px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:12px;font-family:Arial, Helvetica, sans-serif;"/></p><DIV STYLE="text-align:left;font-size:14px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:14px;">2-5              Typical: 3BR, 3BA</SPAN></SPAN></DIV><p STYLE="margin:0; line-height:14px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:12px;font-family:Arial, Helvetica, sans-serif;"/></p><DIV STYLE="text-align:left;font-size:14px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:14px;">6                  Typical: 3BR, 3BA</SPAN></SPAN></DIV><p STYLE="margin:0; line-height:14px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:12px;font-family:Arial, Helvetica, sans-serif;"/></p><p STYLE="margin:0; line-height:14px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:12px;font-family:Arial, Helvetica, sans-serif;"/></p><p STYLE="margin:0; line-height:14px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:12px;font-family:Arial, Helvetica, sans-serif;"/></p><p STYLE="margin:0; line-height:14px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:12px;font-family:Arial, Helvetica, sans-serif;"/></p><p STYLE="margin:0; line-height:14px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:12px;font-family:Arial, Helvetica, sans-serif;"/></p><p STYLE="margin:0; line-height:14px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:12px;font-family:Arial, Helvetica, sans-serif;"/></p><DIV STYLE="text-align:left;font-size:27px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:27px;"><B>Extras</B></SPAN></SPAN></DIV><p STYLE="margin:0; line-height:27px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:12px;font-family:Arial, Helvetica, sans-serif;"/></p><DIV STYLE="line-height:159%;text-align:left;font-size:14px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:14px;">Construction year: 2025</SPAN></SPAN></DIV><DIV STYLE="line-height:159%;text-align:left;font-size:14px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:14px;">Orientation: SouthWest</SPAN></SPAN></DIV><p STYLE="margin:0; line-height:14px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:12px;font-family:Arial, Helvetica, sans-serif;"/></p><DIV STYLE="line-height:159%;text-align:left;font-size:14px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:14px;">*  Beachfront</SPAN></SPAN></DIV><DIV STYLE="line-height:159%;text-align:left;font-size:14px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:14px;">*  Community swimming pool</SPAN></SPAN></DIV><DIV STYLE="line-height:159%;text-align:left;font-size:14px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:14px;">*  8 parking Places</SPAN></SPAN></DIV></div>
+HTMLText_033AC1CF_1FD0_BCC5_41B4_463955D410FD.html = <div style="text-align:left; color:#000; "><DIV STYLE="text-align:left;font-size:27px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:27px;"><B>Floor Textures:</B></SPAN></SPAN></DIV><p STYLE="margin:0; line-height:14px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:12px;font-family:Arial, Helvetica, sans-serif;"/></p></div>
+HTMLText_00A31263_116F_7C3B_41A2_7F6113021394.html = <div style="text-align:left; color:#000; "><DIV STYLE="text-align:left;font-size:27px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:27px;"><B>Wall Textures:</B></SPAN></SPAN></DIV><p STYLE="margin:0; line-height:14px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:12px;font-family:Arial, Helvetica, sans-serif;"/></p></div>
+HTMLText_025FD60A_1FD7_874F_41B0_272A56A244FA.html = <div style="text-align:left; color:#000; "><DIV STYLE="text-align:left;font-size:27px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:27px;"><B>Wood Textures:</B></SPAN></SPAN></DIV><p STYLE="margin:0; line-height:14px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:12px;font-family:Arial, Helvetica, sans-serif;"/></p></div>
+
+### Tooltip
+IconButton_46FDB1DB_7B4B_2BBF_41D1_5D7A2B948729.toolTip = Fullscreen
+
+## Tour
+
+### Description
+
+### Title
+tour.name = Mango Tree Apartments
