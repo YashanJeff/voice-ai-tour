@@ -255,7 +255,7 @@
         <!-- 3DVista Tour will be embedded here -->
         <div id="tour-container">
             <!-- Replace this with your 3DVista embed code -->
-            <iframe src="./index.html" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>
+            <iframe src="your-3dvista-tour-url" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>
         </div>
 
         <!-- Voice Control Panel -->
@@ -672,8 +672,12 @@
             }
         }
 
-        // Analyze image with AI
+        // Analyze image with AI (DISABLED FOR TESTING)
         async function analyzeImageWithAI(imageData) {
+            // DISABLED FOR TESTING - Return simple message
+            return "🎯 Navigation successful! You're now viewing this panorama. The AI vision analysis is currently disabled for testing - we're focusing on navigation only.";
+            
+            /* AI VISION CODE DISABLED FOR TESTING
             try {
                 // Using OpenAI GPT-4 Vision API
                 const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -735,6 +739,7 @@
                     return 'I can see this is a 360-degree panoramic view, but I\'m having trouble analyzing the specific details right now.';
                 }
             }
+            */
         }
 
         // Get text-based AI response
@@ -870,11 +875,9 @@
                 return;
             }
             
-            // Check API keys
-            if (CONFIG.OPENAI_API_KEY === 'YOUR_OPENAI_API_KEY_HERE') {
-                console.warn('OpenAI API key not configured');
-                showStatus('API keys not configured - navigation will work but no AI descriptions', 'error');
-            }
+            // Check API keys (DISABLED FOR TESTING)
+            console.warn('API functionality disabled for testing - focusing on navigation only');
+            showStatus('Navigation testing mode - API features disabled', 'info');
             
             // Add click event listener to voice button
             document.getElementById('voice-btn').addEventListener('click', function() {
