@@ -82,6 +82,28 @@
             animation: spin 1s linear infinite;
         }
 
+        /* Add stop speaking button */
+        #stop-speaking-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #ffa726, #ff7043);
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        #stop-speaking-btn:hover {
+            transform: scale(1.1);
+        }
+
+        #stop-speaking-btn.visible {
+            display: block;
+        }
+
         @keyframes pulse {
             0% { box-shadow: 0 0 0 0 rgba(0, 210, 255, 0.7); }
             70% { box-shadow: 0 0 0 20px rgba(0, 210, 255, 0); }
@@ -255,12 +277,13 @@
         <!-- 3DVista Tour will be embedded here -->
         <div id="tour-container">
             <!-- Replace this with your 3DVista embed code -->
-            <iframe src="./index.html" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>
+            <iframe id="tour-frame" src="./index.html" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>
         </div>
 
         <!-- Voice Control Panel -->
         <div id="voice-control">
             <button id="voice-btn">🎤</button>
+            <button id="stop-speaking-btn" onclick="stopSpeaking()">🔇</button>
             <div id="voice-status">
                 <div id="voice-text">Click to speak</div>
                 <div id="voice-subtitle">Say "Take me to..." or "Show me..."</div>
@@ -297,28 +320,34 @@
             
             // 3DVista Tour Configuration
             TOUR_CONFIG: {
-                // Define your panoramas with 3DVista media names
+                // Define your panoramas with 3DVista media names and descriptions
                 panoramas: [
                     {
                         id: 'flat_101',
                         name: 'Flat 101',
                         keywords: ['flat 101', 'apartment 101', 'unit 101', 'one zero one', '101'],
                         media_name: '101-1', // ← Your actual media name from 3DVista
-                        vista_node: 'node1' // Optional: fallback node ID
+                        vista_node: 'node1', // Optional: fallback node ID
+                        description: 'Welcome to Flat 101! This is a beautiful 1RK apartment with modern amenities. We have multiple customization options available including various wall textures, flooring options, and premium wood finishes. You can personalize this space to match your style and preferences.',
+                        spoken_description: 'Welcome to room 101. This room is 1RK and we have multiple options for wall, floor, and wood textures.'
                     },
                     {
                         id: 'flat_106',
                         name: 'Flat 106',
                         keywords: ['flat 106', 'apartment 106', 'unit 106', 'one zero six', '106'],
                         media_name: '106-1',
-                        vista_node: 'node2'
+                        vista_node: 'node2',
+                        description: 'Welcome to Flat 106! This spacious unit offers contemporary design with flexible layout options. Explore the premium materials and finishes available for your dream home.',
+                        spoken_description: 'You are now in apartment 106. This is a spacious unit with contemporary design and premium material options.'
                     },
                     {
                         id: 'flat_105',
                         name: 'Flat 105',
                         keywords: ['flat 105', 'apartment 105', 'unit 105', 'one zero five', '105'],
                         media_name: '105-1',
-                        vista_node: 'node3'
+                        vista_node: 'node3',
+                        description: 'Welcome to Flat 105! This elegant apartment features high-quality construction and modern amenities. Discover the various customization possibilities for your perfect living space.',
+                        spoken_description: 'This is flat 105, featuring elegant design with high-quality construction and various customization possibilities.'
                     }
                 ]
             }
@@ -475,24 +504,35 @@
             showLoading(true);
 
             try {
+                console.log('Processing voice command:', transcript);
+                
                 // Find matching panorama
                 const matchedPano = findMatchingPanorama(transcript);
                 
                 if (matchedPano) {
+                    console.log('Found matching panorama:', matchedPano.name);
+                    
                     // Navigate to panorama
-                    await navigateToVistaPanorama(matchedPano);
+                    const navigationSuccess = await navigateToVistaPanorama(matchedPano);
                     
-                    // Wait a moment for navigation to complete
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                    
-                    // Capture and analyze current view
-                    await captureAndAnalyzeView(matchedPano);
+                    if (navigationSuccess) {
+                        // Wait a moment for navigation to complete
+                        setTimeout(async () => {
+                            await captureAndAnalyzeView(matchedPano);
+                        }, 2000);
+                    } else {
+                        showAIResponse(`Sorry, I couldn't navigate to ${matchedPano.name}. There might be a technical issue.`, 'Navigation Error');
+                    }
                 } else {
-                    // Use AI to understand the command
-                    await processGeneralCommand(transcript);
+                    console.log('No matching panorama found for:', transcript);
+                    // Use general AI response for unrecognized commands
+                    const aiResponse = await getAIResponse(transcript);
+                    showAIResponse(aiResponse, 'AI Assistant');
                 }
+                
             } catch (error) {
                 console.error('Error processing voice command:', error);
+                showAIResponse("Sorry, I'm having trouble processing your request. Please try again.", 'Error');
                 showStatus('Error processing command', 'error');
             } finally {
                 showLoading(false);
@@ -518,9 +558,15 @@
                     throw new Error('Tour iframe not found');
                 }
 
+                console.log('Attempting navigation to:', pano.name, 'with media:', pano.media_name);
+                
                 // Method 1: Use 3DVista URL parameters to navigate by media name
-                const baseUrl = iframe.src.split('?')[0]; // Get base URL without parameters
-                const newUrl = `${baseUrl}?startmedia=${encodeURIComponent(pano.media_name)}`;
+                const currentUrl = iframe.src;
+                const baseUrl = currentUrl.split('?')[0]; // Get base URL without parameters
+                const newUrl = `${baseUrl}?startmedia=${pano.media_name}`;
+                
+                console.log('Current URL:', currentUrl);
+                console.log('New URL:', newUrl);
                 
                 // Update iframe source to navigate
                 iframe.src = newUrl;
@@ -528,100 +574,40 @@
                 showStatus(`Navigating to ${pano.name}...`, 'info');
                 
                 // Wait for navigation to complete
-                await new Promise(resolve => {
-                    const checkLoaded = () => {
-                        try {
-                            if (iframe.contentDocument && iframe.contentDocument.readyState === 'complete') {
-                                showStatus(`Navigated to ${pano.name}`, 'success');
-                                resolve();
-                            } else {
-                                setTimeout(checkLoaded, 500);
-                            }
-                        } catch (e) {
-                            // Cross-origin - assume loaded after delay
-                            setTimeout(() => {
-                                showStatus(`Navigated to ${pano.name}`, 'success');
-                                resolve();
-                            }, 2000);
-                        }
-                    };
-                    checkLoaded();
-                });
+                setTimeout(() => {
+                    showStatus(`Navigated to ${pano.name}`, 'success');
+                    console.log('Navigation completed to:', pano.name);
+                }, 2000);
                 
-                return;
+                return true;
 
-                // Method 2: Try direct API calls as fallback
-                if (typeof gotoNode !== 'undefined') {
-                    gotoNode(pano.vista_node || pano.media_name);
-                    currentPanorama = pano;
-                    showStatus(`Navigated to ${pano.name}`, 'success');
-                    return;
-                }
-
-                // Method 3: PostMessage to 3DVista iframe
-                if (iframe.contentWindow) {
-                    iframe.contentWindow.postMessage({
-                        type: '3dvista-navigate',
-                        mediaName: pano.media_name,
-                        nodeId: pano.vista_node
-                    }, '*');
-                    currentPanorama = pano;
-                    showStatus(`Navigated to ${pano.name}`, 'success');
-                    return;
-                }
-
-                // Method 4: JavaScript execution in iframe context
-                if (iframe.contentDocument) {
-                    const script = iframe.contentDocument.createElement('script');
-                    script.textContent = `
-                        if (typeof gotoMedia !== 'undefined') {
-                            gotoMedia('${pano.media_name}');
-                        } else if (typeof gotoNode !== 'undefined') {
-                            gotoNode('${pano.vista_node || pano.media_name}');
-                        } else if (typeof player !== 'undefined') {
-                            if (player.gotoMedia) {
-                                player.gotoMedia('${pano.media_name}');
-                            } else if (player.gotoNode) {
-                                player.gotoNode('${pano.vista_node || pano.media_name}');
-                            }
-                        }
-                    `;
-                    iframe.contentDocument.head.appendChild(script);
-                    currentPanorama = pano;
-                    showStatus(`Navigated to ${pano.name}`, 'success');
-                    return;
-                }
-                
             } catch (error) {
                 console.error('Navigation error:', error);
-                showStatus('Navigation failed - check 3DVista integration', 'error');
+                showStatus(`Navigation to ${pano.name} failed`, 'error');
+                return false;
             }
         }
 
         // Capture and analyze current view
         async function captureAndAnalyzeView(pano) {
             try {
-                // Method 1: Try to get screenshot from 3DVista
-                let imageData = await capture3DVistaView();
+                // Use predefined description instead of AI analysis
+                const description = pano.description || `Welcome to ${pano.name}! You're now viewing this location in 360 degrees.`;
+                const spokenText = pano.spoken_description || `You are now in ${pano.name}.`;
                 
-                // Method 2: If direct capture fails, use canvas screenshot
-                if (!imageData) {
-                    imageData = await captureCanvasView();
-                }
-
-                if (imageData) {
-                    // Analyze with AI vision
-                    const analysis = await analyzeImageWithAI(imageData);
-                    showAIResponse(analysis, pano.name);
-                } else {
-                    // Fallback: Use text-based AI response
-                    const response = await getTextBasedResponse(pano);
-                    showAIResponse(response, pano.name);
-                }
+                // Show text description
+                showAIResponse(description, pano.name);
+                
+                // Speak the description
+                setTimeout(() => {
+                    speakText(spokenText);
+                }, 500);
+                
             } catch (error) {
-                console.error('Error capturing/analyzing view:', error);
+                console.error('Error displaying description:', error);
                 const fallbackResponse = `I've taken you to ${pano.name}. This appears to be a 360-degree panoramic view of the location.`;
                 showAIResponse(fallbackResponse, pano.name);
+                speakText(`You are now in ${pano.name}.`);
             }
         }
 
@@ -847,9 +833,97 @@
             }, 3000);
         }
 
-        // Show/hide loading overlay
-        function showLoading(show) {
-            document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none';
+        // Text-to-Speech functionality
+        function speakText(text) {
+            if (!text) return;
+            
+            try {
+                // Check if speech synthesis is available
+                if (!('speechSynthesis' in window)) {
+                    console.warn('Speech synthesis not supported');
+                    return;
+                }
+                
+                // Stop any ongoing speech
+                window.speechSynthesis.cancel();
+                
+                // Create new speech synthesis utterance
+                const utterance = new SpeechSynthesisUtterance(text);
+                
+                // Configure voice settings
+                utterance.rate = 0.9; // Slightly slower for clarity
+                utterance.pitch = 1.0; // Normal pitch
+                utterance.volume = 0.8; // Slightly quieter
+                
+                // Show stop button when speaking
+                utterance.onstart = function() {
+                    const stopBtn = document.getElementById('stop-speaking-btn');
+                    if (stopBtn) {
+                        stopBtn.classList.add('visible');
+                    }
+                };
+                
+                // Hide stop button when finished
+                utterance.onend = function() {
+                    const stopBtn = document.getElementById('stop-speaking-btn');
+                    if (stopBtn) {
+                        stopBtn.classList.remove('visible');
+                    }
+                };
+                
+                // Wait for voices to load, then speak
+                if (window.speechSynthesis.getVoices().length > 0) {
+                    setVoiceAndSpeak(utterance);
+                } else {
+                    window.speechSynthesis.onvoiceschanged = function() {
+                        setVoiceAndSpeak(utterance);
+                    };
+                }
+                
+                console.log('Speaking:', text);
+                
+            } catch (error) {
+                console.error('Text-to-speech error:', error);
+                // Fallback: Just show the text if speech fails
+                showStatus('TTS: ' + text, 'info');
+            }
+        }
+
+        // Helper function to set voice and speak
+        function setVoiceAndSpeak(utterance) {
+            try {
+                // Try to use a pleasant voice (English)
+                const voices = window.speechSynthesis.getVoices();
+                const preferredVoice = voices.find(voice => 
+                    voice.lang.includes('en') && 
+                    (voice.name.includes('Google') || voice.name.includes('Microsoft') || voice.name.includes('Samantha'))
+                );
+                
+                if (preferredVoice) {
+                    utterance.voice = preferredVoice;
+                }
+                
+                // Speak the text
+                window.speechSynthesis.speak(utterance);
+            } catch (error) {
+                console.error('Voice setting error:', error);
+                // Still try to speak without voice preference
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Stop speech function
+        function stopSpeaking() {
+            try {
+                window.speechSynthesis.cancel();
+                const stopBtn = document.getElementById('stop-speaking-btn');
+                if (stopBtn) {
+                    stopBtn.classList.remove('visible');
+                }
+                console.log('Speech stopped');
+            } catch (error) {
+                console.error('Error stopping speech:', error);
+            }
         }
 
         // Initialize when page loads
@@ -887,6 +961,11 @@
             
             console.log('Voice AI Navigator initialized successfully');
             showStatus('Voice AI Navigator ready - Click microphone to speak', 'success');
+            
+            // Play welcome message after everything is loaded
+            setTimeout(() => {
+                playWelcomeMessage();
+            }, 2000);
         });
 
         // Listen for messages from 3DVista
@@ -908,12 +987,25 @@
             }
         });
 
+        // Process general command
+        async function processGeneralCommand(transcript) {
+            try {
+                const response = await getAIResponse(transcript);
+                showAIResponse(response, 'AI Assistant');
+            } catch (error) {
+                console.error('General command error:', error);
+                showAIResponse('I\'m here to help you navigate the tour. Try saying something like "Take me to flat 101" or "Show me apartment 106".', 'AI Assistant');
+            }
+        }
+
         // Additional navigation functions for different 3DVista URL methods
         function navigateByMediaName(mediaName) {
             const iframe = document.querySelector('iframe');
             if (iframe) {
                 const baseUrl = iframe.src.split('?')[0];
-                iframe.src = `${baseUrl}?startmedia=${encodeURIComponent(mediaName)}`;
+                const newUrl = `${baseUrl}?startmedia=${mediaName}`;
+                console.log('Direct navigation to:', newUrl);
+                iframe.src = newUrl;
             }
         }
 
@@ -921,15 +1013,9 @@
             const iframe = document.querySelector('iframe');
             if (iframe) {
                 const baseUrl = iframe.src.split('?')[0];
-                iframe.src = `${baseUrl}?startnode=${encodeURIComponent(nodeId)}`;
-            }
-        }
-
-        function navigateByViewpoint(mediaName, viewpoint) {
-            const iframe = document.querySelector('iframe');
-            if (iframe) {
-                const baseUrl = iframe.src.split('?')[0];
-                iframe.src = `${baseUrl}?startmedia=${encodeURIComponent(mediaName)}&startviewpoint=${encodeURIComponent(viewpoint)}`;
+                const newUrl = `${baseUrl}?startnode=${nodeId}`;
+                console.log('Node navigation to:', newUrl);
+                iframe.src = newUrl;
             }
         }
     </script>
