@@ -320,22 +320,24 @@
             
             // 3DVista Tour Configuration
             TOUR_CONFIG: {
-                // Define your panoramas with 3DVista media names and descriptions
+                // Define your panoramas with 3DVista media names and hotspot names
                 panoramas: [
                     {
                         id: 'flat_101',
                         name: 'Flat 101',
-                        keywords: ['flat 101', 'apartment 101', 'unit 101', 'one zero one', '101'],
-                        media_name: '101-1', // ← Your actual media name from 3DVista
-                        vista_node: 'node1', // Optional: fallback node ID
+                        keywords: ['flat 101', 'apartment 101', 'unit 101', 'one zero one', '101', 'room 101', 'one oh one', 'flat one zero one'],
+                        media_name: '101-1', // Your actual media name
+                        hotspot_name: 'GoTo101-1', // Your actual hotspot name
+                        vista_node: 'node1',
                         description: 'Welcome to Flat 101! This is a beautiful 1RK apartment with modern amenities. We have multiple customization options available including various wall textures, flooring options, and premium wood finishes. You can personalize this space to match your style and preferences.',
                         spoken_description: 'Welcome to room 101. This room is 1RK and we have multiple options for wall, floor, and wood textures.'
                     },
                     {
                         id: 'flat_106',
                         name: 'Flat 106',
-                        keywords: ['flat 106', 'apartment 106', 'unit 106', 'one zero six', '106'],
+                        keywords: ['flat 106', 'apartment 106', 'unit 106', 'one zero six', '106', 'room 106', 'one oh six', 'flat one zero six'],
                         media_name: '106-1',
+                        hotspot_name: 'GoTo106-2', // Your actual hotspot name
                         vista_node: 'node2',
                         description: 'Welcome to Flat 106! This spacious unit offers contemporary design with flexible layout options. Explore the premium materials and finishes available for your dream home.',
                         spoken_description: 'You are now in apartment 106. This is a spacious unit with contemporary design and premium material options.'
@@ -343,8 +345,9 @@
                     {
                         id: 'flat_105',
                         name: 'Flat 105',
-                        keywords: ['flat 105', 'apartment 105', 'unit 105', 'one zero five', '105'],
+                        keywords: ['flat 105', 'apartment 105', 'unit 105', 'one zero five', '105', 'room 105', 'one oh five', 'flat one zero five'],
                         media_name: '105-1',
+                        hotspot_name: 'GoTo105-1', // Assuming similar pattern - update if different
                         vista_node: 'node3',
                         description: 'Welcome to Flat 105! This elegant apartment features high-quality construction and modern amenities. Discover the various customization possibilities for your perfect living space.',
                         spoken_description: 'This is flat 105, featuring elegant design with high-quality construction and various customization possibilities.'
@@ -548,7 +551,7 @@
             );
         }
 
-        // Navigate to 3DVista panorama by simulating hotspot clicks
+        // Navigate to 3DVista panorama by clicking specific hotspots
         async function navigateToVistaPanorama(pano) {
             try {
                 const iframe = document.querySelector('iframe');
@@ -556,28 +559,44 @@
                     throw new Error('Tour iframe not found');
                 }
 
-                console.log('Attempting navigation to:', pano.name, 'using hotspot simulation');
+                console.log('Attempting navigation to:', pano.name, 'using hotspot:', pano.hotspot_name);
                 
-                // Method 1: Try to find and click hotspots in the iframe
+                // Method 1: Find and click the specific hotspot by name
                 try {
                     if (iframe.contentDocument) {
-                        console.log('Searching for hotspots in tour...');
+                        console.log('Searching for hotspot:', pano.hotspot_name);
                         
-                        // Look for common hotspot selectors in 3DVista
+                        // Try to find the hotspot using various selectors
                         const hotspotSelectors = [
-                            `[data-target="${pano.media_name}"]`,
-                            `[data-goto="${pano.media_name}"]`,
-                            `[onclick*="${pano.media_name}"]`,
-                            `[href*="${pano.media_name}"]`,
-                            `.hotspot[title*="${pano.name}"]`,
-                            `.hotspot[alt*="${pano.name}"]`,
-                            `div[onclick*="${pano.media_name}"]`,
-                            `a[onclick*="${pano.media_name}"]`,
-                            // Try with different variations
-                            `[data-target="${pano.media_name.toLowerCase()}"]`,
-                            `[onclick*="101"]`, // For flat 101
-                            `[onclick*="106"]`, // For flat 106  
-                            `[onclick*="105"]`  // For flat 105
+                            // Direct hotspot name matching
+                            `[onclick*="${pano.hotspot_name}"]`,
+                            `[id="${pano.hotspot_name}"]`,
+                            `[name="${pano.hotspot_name}"]`,
+                            `[data-hotspot="${pano.hotspot_name}"]`,
+                            `[data-target="${pano.hotspot_name}"]`,
+                            `[data-goto="${pano.hotspot_name}"]`,
+                            
+                            // Class name patterns
+                            `.${pano.hotspot_name}`,
+                            `[class*="${pano.hotspot_name}"]`,
+                            
+                            // Title and alt attributes
+                            `[title="${pano.hotspot_name}"]`,
+                            `[alt="${pano.hotspot_name}"]`,
+                            
+                            // Common 3DVista function patterns
+                            `[onclick*="'${pano.hotspot_name}'"]`,
+                            `[onclick*='"${pano.hotspot_name}"']`,
+                            `[onclick*="gotoNode('${pano.hotspot_name}')"]`,
+                            `[onclick*="navigateTo('${pano.hotspot_name}')"]`,
+                            `[onclick*="switchTo('${pano.hotspot_name}')"]`,
+                            
+                            // Generic hotspot searches with the name
+                            `div[onclick*="${pano.hotspot_name}"]`,
+                            `a[onclick*="${pano.hotspot_name}"]`,
+                            `button[onclick*="${pano.hotspot_name}"]`,
+                            `span[onclick*="${pano.hotspot_name}"]`,
+                            `img[onclick*="${pano.hotspot_name}"]`
                         ];
                         
                         let hotspotFound = false;
@@ -587,105 +606,126 @@
                             console.log(`Checking selector "${selector}": found ${hotspots.length} elements`);
                             
                             if (hotspots.length > 0) {
-                                console.log('Found hotspot(s):', hotspots);
+                                console.log('✅ Found hotspot with selector:', selector);
+                                console.log('✅ Hotspot element:', hotspots[0]);
+                                console.log('✅ Hotspot onclick:', hotspots[0].getAttribute('onclick'));
+                                console.log('✅ Hotspot id:', hotspots[0].getAttribute('id'));
+                                console.log('✅ Hotspot class:', hotspots[0].className);
+                                
+                                // Click the hotspot
+                                console.log('🎯 Clicking hotspot for:', pano.name);
                                 hotspots[0].click();
                                 hotspotFound = true;
-                                console.log('Clicked hotspot for:', pano.name);
+                                console.log('✅ Successfully clicked hotspot:', pano.hotspot_name);
                                 break;
                             }
                         }
                         
                         if (!hotspotFound) {
-                            // Try to find ALL hotspots and log them
-                            const allHotspots = iframe.contentDocument.querySelectorAll('[onclick], .hotspot, [data-target], [data-goto], a[href*="#"]');
-                            console.log('All hotspots found in tour:', allHotspots);
+                            console.log('❌ Hotspot not found with name:', pano.hotspot_name);
+                            console.log('🔍 Searching for all clickable elements containing GoTo...');
                             
-                            // Log their attributes to help identify the right one
-                            allHotspots.forEach((hotspot, index) => {
-                                console.log(`Hotspot ${index}:`, {
-                                    onclick: hotspot.getAttribute('onclick'),
-                                    dataTarget: hotspot.getAttribute('data-target'),
-                                    dataGoto: hotspot.getAttribute('data-goto'),
-                                    href: hotspot.getAttribute('href'),
-                                    title: hotspot.getAttribute('title'),
-                                    alt: hotspot.getAttribute('alt'),
-                                    className: hotspot.className,
-                                    text: hotspot.textContent?.trim()
-                                });
+                            // Search for any element containing "GoTo"
+                            const gotoElements = iframe.contentDocument.querySelectorAll('*');
+                            const matchingElements = [];
+                            
+                            gotoElements.forEach((element, index) => {
+                                const onclick = element.getAttribute('onclick') || '';
+                                const id = element.getAttribute('id') || '';
+                                const className = element.className || '';
+                                const title = element.getAttribute('title') || '';
+                                
+                                if (onclick.includes('GoTo') || id.includes('GoTo') || className.includes('GoTo') || title.includes('GoTo')) {
+                                    matchingElements.push({
+                                        index,
+                                        element,
+                                        onclick,
+                                        id,
+                                        className,
+                                        title
+                                    });
+                                }
                             });
+                            
+                            console.log('🔍 Found GoTo elements:', matchingElements);
+                            
+                            // Try to click the one that matches our hotspot name
+                            const exactMatch = matchingElements.find(item => 
+                                item.onclick.includes(pano.hotspot_name) || 
+                                item.id === pano.hotspot_name ||
+                                item.className.includes(pano.hotspot_name)
+                            );
+                            
+                            if (exactMatch) {
+                                console.log('🎯 Found exact match, clicking:', exactMatch);
+                                exactMatch.element.click();
+                                hotspotFound = true;
+                                console.log('✅ Successfully clicked exact match hotspot');
+                            }
                         }
                         
                     } else {
-                        console.log('Cannot access iframe content directly (CORS)');
+                        console.log('❌ Cannot access iframe content directly (CORS)');
                     }
                 } catch (iframeError) {
-                    console.log('Iframe access error:', iframeError);
+                    console.log('❌ Iframe access error:', iframeError);
                 }
                 
-                // Method 2: Try postMessage with hotspot simulation
+                // Method 2: Try postMessage with specific hotspot name
                 try {
-                    console.log('Trying postMessage hotspot simulation...');
+                    console.log('📨 Trying postMessage with hotspot name...');
                     iframe.contentWindow.postMessage({
                         type: '3dvista-click-hotspot',
+                        hotspot: pano.hotspot_name,
                         target: pano.media_name,
-                        room: pano.name
+                        action: 'navigate'
                     }, '*');
                 } catch (postError) {
-                    console.log('PostMessage hotspot simulation failed:', postError);
+                    console.log('❌ PostMessage failed:', postError);
                 }
                 
-                // Method 3: Try JavaScript execution for hotspot clicking
+                // Method 3: Try direct JavaScript execution
                 try {
-                    console.log('Trying JavaScript hotspot execution...');
+                    console.log('🔧 Trying JavaScript execution...');
                     const script = iframe.contentDocument?.createElement('script');
                     if (script) {
                         script.textContent = `
-                            // Try to find and click hotspot for ${pano.media_name}
-                            const hotspotSelectors = [
-                                '[data-target="${pano.media_name}"]',
-                                '[onclick*="${pano.media_name}"]',
-                                '[onclick*="${pano.media_name.split('-')[0]}"]'
-                            ];
-                            
-                            for (const selector of hotspotSelectors) {
-                                const hotspot = document.querySelector(selector);
+                            try {
+                                // Try to find and click the hotspot
+                                const hotspot = document.querySelector('[onclick*="${pano.hotspot_name}"]') ||
+                                               document.querySelector('#${pano.hotspot_name}') ||
+                                               document.querySelector('.${pano.hotspot_name}');
+                                
                                 if (hotspot) {
-                                    console.log('Found and clicking hotspot:', hotspot);
+                                    console.log('Found hotspot via script:', hotspot);
                                     hotspot.click();
-                                    break;
+                                } else {
+                                    console.log('No hotspot found via script for: ${pano.hotspot_name}');
                                 }
-                            }
-                            
-                            // Also try 3DVista specific functions
-                            if (typeof gotoNode !== 'undefined') {
-                                try { gotoNode('${pano.vista_node}'); } catch(e) {}
-                            }
-                            if (typeof gotoMedia !== 'undefined') {
-                                try { gotoMedia('${pano.media_name}'); } catch(e) {}
-                            }
-                            if (typeof switchScene !== 'undefined') {
-                                try { switchScene('${pano.media_name}'); } catch(e) {}
+                            } catch (e) {
+                                console.log('Script execution error:', e);
                             }
                         `;
                         iframe.contentDocument.head.appendChild(script);
+                        console.log('✅ Script injected successfully');
                     }
                 } catch (scriptError) {
-                    console.log('Script injection failed:', scriptError);
+                    console.log('❌ Script injection failed:', scriptError);
                 }
                 
                 currentPanorama = pano;
-                showStatus(`Attempting hotspot navigation to ${pano.name}...`, 'info');
+                showStatus(`Clicking hotspot ${pano.hotspot_name} for ${pano.name}...`, 'info');
                 
                 // Give it time to navigate
                 setTimeout(() => {
-                    showStatus(`Hotspot navigation attempt completed for ${pano.name}`, 'success');
-                    console.log('Hotspot navigation attempt completed for:', pano.name);
+                    showStatus(`Navigation completed for ${pano.name}`, 'success');
+                    console.log('🏁 Navigation attempt completed for:', pano.name);
                 }, 3000);
                 
                 return true;
 
             } catch (error) {
-                console.error('Hotspot navigation error:', error);
+                console.error('❌ Hotspot navigation error:', error);
                 showStatus(`Hotspot navigation to ${pano.name} failed`, 'error');
                 return false;
             }
